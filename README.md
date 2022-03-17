@@ -28,28 +28,74 @@ Overall concepts for this are as follows:
 
 The following code snippet represents the createStore written from scratch:
 
-<code> 
+```Javascript
+//the createStore(reducer) function
 const createStore = (reducer) => {
+  //state of the store
   let state;
+  //array of subscribed listners to update when dispatch is called
   let listeners = [];
-
+  //returns the state
   const getState = () => state;
-
+  //dispatch calls the reducer with the action passed and the current state
   const dispatch = (action) => {
     state = reducer(state, action);
+    //callback all listners
     listeners.forEach(listener => listener());
   };
-
+  //subscribers use this
   const subscribe = (listener) => {
+    //push the listner to the listners array
     listeners.push(listener);
     return () => {
       listeners = listeners.filter(l => l !== listener);
     }
   };
-
   dispatch({}); // dummy dispatch
-
   return { getState, dispatch, subscribe };
+};
+```
+
+## 04. Avoiding Array and Object Mutations
+Overall concepts for this are as follows:
+
+1. We should return a new state each time the state is updated. This is necessary due to how Redux works. This can be done with the spread operator (...array) or using slice/concat.
+
+Examples:
+
+```Javascript
+const addCounter = (list) => {
+  return [...list, 0]; //adding via es6
+};
+
+//or using concat to add the 0
+
+const addCounter = (list) => {
+  return list.concat(0);
+};
+
+//or using slice to add the 0
+
+const addCounter = (list) => {
+
+  const listBefore = list.slice();
+  return listBefore.push(0);
 
 };
-</code>
+
+//and for some objects
+const toggleTodo = (todo) => {
+  return {
+    ...todo, 
+    completed: !todo.completed
+  };
+};
+
+//and with Object.assign
+const toggleTodo = (todo) => {
+  return Object.assign({}, todo, {
+    completed: !todo.completed
+  });
+};
+
+```
